@@ -24,6 +24,8 @@ class Game {
   constructor(initialState) {
     // eslint-disable-next-line no-console
     console.log(initialState);
+    this.cells = [...document.querySelectorAll('.field-cell')];
+    this.emptyCells = this.cells;
     this.score = 0;
     this.status = 'idle';
     this.state = initialState;
@@ -35,18 +37,22 @@ class Game {
 
   moveLeft() {
     // console.log('left');
+    this.spawnBlock();
   }
 
   moveRight() {
     // console.log('right');
+    this.spawnBlock();
   }
 
   moveUp() {
     // console.log('Up');
+    this.spawnBlock();
   }
 
   moveDown() {
     // console.log('Down');
+    this.spawnBlock();
   }
 
   /**
@@ -87,8 +93,9 @@ class Game {
     button.classList.replace('start', 'restart');
     button.innerText = 'Restart';
 
-    this.messageStart.setAttribute('hidden', 'true');
+    this.messageStart.classList.add('hidden');
     this.status = 'playing';
+    this.spawnBlock();
   }
 
   /**
@@ -101,7 +108,9 @@ class Game {
     button.classList.replace('restart', 'start');
     button.innerText = 'Start';
 
-    this.messageStart.removeAttribute('hidden');
+    this.messageStart.classList.remove('hidden');
+    this.messageLose.classList.add('hidden');
+    this.messageWin.classList.add('hidden');
     this.status = 'idle';
 
     this.state = [
@@ -110,6 +119,12 @@ class Game {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
+
+    this.cells.forEach((cell) => {
+      cell.innerText = '';
+      cell.className = 'field-cell';
+    });
+    this.emptyCells = this.cells;
   }
 
   buttonClick() {
@@ -122,11 +137,30 @@ class Game {
     }
   }
 
-  // spawnBlock() {
-  //   // If less than 10% - returns 4, otherwise - 2
-  //   const blockValue = Math.random() * 100 > 10 ? 2 : 4;
+  gameLose() {
+    console.log(this.messageLose);
+    this.status = 'lose';
+    this.messageLose.classList.remove('hidden');
+  }
 
-  // }
+  spawnBlock() {
+    // If less than 10% - returns 4, otherwise - 2
+    const blockValue = Math.random() * 100 > 10 ? 2 : 4;
+    const randBlockIndex = Math.floor(
+      Math.random() * (this.emptyCells.length - 1),
+    );
+    const randBlock = this.emptyCells[randBlockIndex];
+
+    randBlock.innerText = blockValue;
+    randBlock.classList.add('field-cell--' + blockValue);
+
+    this.emptyCells = this.emptyCells.filter((cell) => cell !== randBlock);
+    console.log(this.emptyCells);
+
+    if (this.emptyCells.length === 0) {
+      this.gameLose();
+    }
+  }
 }
 
 module.exports = Game;
