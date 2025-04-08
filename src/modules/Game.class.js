@@ -96,6 +96,7 @@ class Game {
     this.messageStart.classList.add('hidden');
     this.status = 'playing';
     this.spawnBlock();
+    this.spawnBlock();
   }
 
   /**
@@ -138,7 +139,6 @@ class Game {
   }
 
   gameLose() {
-    console.log(this.messageLose);
     this.status = 'lose';
     this.messageLose.classList.remove('hidden');
   }
@@ -155,10 +155,19 @@ class Game {
     randBlock.classList.add('field-cell--' + blockValue);
 
     this.emptyCells = this.emptyCells.filter((cell) => cell !== randBlock);
-    console.log(this.emptyCells);
+
+    // eslint-disable-next-line max-len, prettier/prettier
+    this.state[randBlock.parentElement.rowIndex][randBlock.cellIndex] = blockValue;
+    console.log(this.state);
 
     if (this.emptyCells.length === 0) {
       this.gameLose();
+    }
+  }
+
+  moveUpCheck() {
+    for (let i = 0; i < 4; i++) {
+
     }
   }
 }
