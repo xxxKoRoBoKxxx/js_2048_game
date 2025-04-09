@@ -25,7 +25,6 @@ class Game {
     // eslint-disable-next-line no-console
     console.log(initialState);
     this.cells = [...document.querySelectorAll('.field-cell')];
-    this.emptyCells = this.cells;
     this.score = 0;
     this.status = 'idle';
     this.state = initialState;
@@ -37,22 +36,26 @@ class Game {
 
   moveLeft() {
     // console.log('left');
-    this.spawnBlock();
+    // this.spawnBlock();
+    this.calculateStep('left');
   }
 
   moveRight() {
     // console.log('right');
-    this.spawnBlock();
+    // this.spawnBlock();
+    this.calculateStep('right');
   }
 
   moveUp() {
     // console.log('Up');
-    this.spawnBlock();
+    // this.spawnBlock();
+    this.calculateStep('up');
   }
 
   moveDown() {
     // console.log('Down');
-    this.spawnBlock();
+    // this.spawnBlock();
+    this.calculateStep('down');
   }
 
   /**
@@ -89,14 +92,13 @@ class Game {
   start() {
     const button = this.button;
 
+    // console
     button.setAttribute('tabindex', '-1');
     button.classList.replace('start', 'restart');
     button.innerText = 'Restart';
 
     this.messageStart.classList.add('hidden');
     this.status = 'playing';
-    this.spawnBlock();
-    this.spawnBlock();
   }
 
   /**
@@ -143,33 +145,119 @@ class Game {
     this.messageLose.classList.remove('hidden');
   }
 
-  spawnBlock() {
-    // If less than 10% - returns 4, otherwise - 2
-    const blockValue = Math.random() * 100 > 10 ? 2 : 4;
-    const randBlockIndex = Math.floor(
-      Math.random() * (this.emptyCells.length - 1),
-    );
-    const randBlock = this.emptyCells[randBlockIndex];
+  calculateStep(direction) {
+    switch (direction) {
+      case 'left':
+        break;
+      case 'right':
+        break;
+      case 'up':
+        for (let col = 0; col < 4; col++) {
+          const colArr = [];
 
-    randBlock.innerText = blockValue;
-    randBlock.classList.add('field-cell--' + blockValue);
+          for (let row = 0; row < 4; row++) {
+            colArr.push(this.state[row][col]);
+          }
 
-    this.emptyCells = this.emptyCells.filter((cell) => cell !== randBlock);
+          const newArr = this.step(colArr);
 
-    // eslint-disable-next-line max-len, prettier/prettier
-    this.state[randBlock.parentElement.rowIndex][randBlock.cellIndex] = blockValue;
+          for (let row = 0; row < 4; row++) {
+            this.state[row][col] = newArr[row];
+          }
+        }
+        break;
+      case 'down':
+        for (let col = 0; col < 4; col++) {
+          const colArr = [];
+
+          for (let row = 3; row >= 0; row--) {
+            colArr.push(this.state[row][col]);
+          }
+
+          const newArr = this.step(colArr).reverse();
+
+          for (let row = 0; row < 4; row++) {
+            this.state[row][col] = newArr[row];
+          }
+        }
+        break;
+    }
+
     console.log(this.state);
-
-    if (this.emptyCells.length === 0) {
-      this.gameLose();
-    }
+    this.spawnCell();
   }
 
-  moveUpCheck() {
-    for (let i = 0; i < 4; i++) {
+  step(arr) {
+    const newArr = [...arr];
 
+    for (let i = 0; i < newArr.length; i++) {
+      if (newArr[i] === 0) {
+        for (let j = i + 1; j < newArr.length; j++) {
+          if (newArr[j] > 0) {
+            newArr[i] = newArr[j];
+            newArr[j] = 0;
+            break;
+          }
+        }
+      } else {
+        for (let j = i + 1; j < newArr.length; j++) {
+          if (newArr[j] === newArr[i]) {
+            newArr[i] *= 2;
+            newArr[j] = 0;
+            break;
+          } else if (newArr[j] > newArr[i] || newArr[j] > newArr[i]) {
+            break;
+          }
+        }
+      }
     }
+
+    return newArr;
   }
+
+  spawnCell() {
+    const emptyCells = this.state.reduce((newArr, value, row) => {
+      value
+        .map((cell, i) => ({ value: cell, i }))
+        .filter((cell) => !cell.value)
+        .map((cell) => cell.i)
+        .forEach((i) => newArr.push([i, row]));
+
+      return newArr;
+    }, []);
+
+    // If less than 10% - returns 4, otherwise - 2
+    const cellValue = Math.random() * 100 > 10 ? 2 : 4;
+    const randCellIndex = Math.floor(Math.random() * (emptyCells.length - 1));
+    const randEmptyCell = emptyCells[randCellIndex];
+
+    this.state[randEmptyCell[0]][randEmptyCell[1]] = cellValue;
+  }
+
+  spawnBlock() {
+    // const blockValue = Math.random() * 100 > 10 ? 2 : 4;
+    // this.state[randBlock.parentElement.rowIndex][randBlock.cellIndex] = blockValue;
+    // const randBlock = this.emptyCells[randBlockIndex];
+
+    // randBlock.innerText = blockValue;
+    // randBlock.classList.add('field-cell--' + blockValue);
+
+    // this.emptyCells = this.emptyCells.filter((cell) => cell !== randBlock);
+
+    // // eslint-disable-next-line max-len, prettier/prettier
+    // console.log(this.state);
+
+    // if (this.emptyCells.length === 0) {
+    //   this.gameLose();
+    // }
+  }
+
+
+  // moveUpCheck() {
+  //   for (let i = 0; i < 4; i++) {
+
+  //   }
+  // }
 }
 
 module.exports = Game;
