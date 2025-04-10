@@ -26,6 +26,7 @@ class Game {
     console.log(initialState);
     this.cells = [...document.querySelectorAll('.field-cell')];
     this.score = 0;
+    this.scoreHTML = document.querySelector('.game-score');
     this.status = 'idle';
     this.state = initialState;
     this.button = document.querySelector('button');
@@ -61,8 +62,9 @@ class Game {
   /**
    * @returns {number}
    */
-  getScore() {
-    return this.score;
+  getScore(value) {
+    this.score += value;
+    this.scoreHTML.innerText = this.score;
   }
 
   /**
@@ -99,6 +101,7 @@ class Game {
 
     this.messageStart.classList.add('hidden');
     this.status = 'playing';
+    this.drowCells();
   }
 
   /**
@@ -226,6 +229,7 @@ class Game {
         } else if (newArr[j] === newArr[i]) {
           newArr[i] *= 2;
           newArr[j] = 0;
+          this.getScore(newArr[i]);
           break;
         } else if (newArr[j] > newArr[i]) {
           break;
@@ -258,7 +262,12 @@ class Game {
   drowCells() {
     this.cells.forEach((cell, i) => {
       cell.innerText = this.state.flat()[i];
-      cell.className = 'field-cell' + ' field-cell--' + cell.innerText;
+
+      if (cell.innerText === '0') {
+        cell.className = 'field-cell';
+      } else {
+        cell.className = 'field-cell' + ' field-cell--' + cell.innerText;
+      }
     });
   }
 }
