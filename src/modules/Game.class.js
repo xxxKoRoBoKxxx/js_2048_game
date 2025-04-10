@@ -191,27 +191,23 @@ class Game {
     const newArr = [...arr];
 
     for (let i = 0; i < newArr.length; i++) {
-      if (newArr[i] === 0) {
-        for (let j = i + 1; j < newArr.length; j++) {
-          if (newArr[j] > 0) {
-            newArr[i] = newArr[j];
-            newArr[j] = 0;
-            break;
+      for (let j = i + 1; j < newArr.length; j++) {
+        if (newArr[i] === 0) {
+          if (newArr[j] === 0) {
+            continue;
           }
-        }
-      } else {
-        for (let j = i + 1; j < newArr.length; j++) {
-          if (newArr[j] === newArr[i]) {
-            newArr[i] *= 2;
-            newArr[j] = 0;
-            break;
-          } else if (newArr[j] > newArr[i] || newArr[j] > newArr[i]) {
-            break;
-          }
+          newArr[i] = newArr[j];
+          newArr[j] = 0;
+        } else if (newArr[j] === newArr[i]) {
+          newArr[i] *= 2;
+          newArr[j] = 0;
+          break;
+        } else if (newArr[j] > newArr[i] || newArr[j] < newArr[i]) {
+          break;
         }
       }
     }
-
+    
     return newArr;
   }
 

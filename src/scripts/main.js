@@ -5,8 +5,8 @@ const Game = require('../modules/Game.class');
 const game = new Game([
   [2, 0, 2, 0],
   [0, 0, 0, 0],
-  [2, 2, 0, 0],
-  [4, 0, 0, 0],
+  [4, 2, 0, 0],
+  [2, 0, 0, 0],
 ]);
 
 game.button.addEventListener('click', () => {
