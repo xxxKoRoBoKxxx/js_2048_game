@@ -24,39 +24,53 @@ class Game {
   constructor(initialState) {
     // eslint-disable-next-line no-console
     console.log(initialState);
+
     this.cells = [...document.querySelectorAll('.field-cell')];
     this.score = 0;
     this.scoreHTML = document.querySelector('.game-score');
     this.status = 'idle';
     this.state = initialState;
     this.button = document.querySelector('button');
-    this.messageLose = document.querySelector('[data-message-lose]');
-    this.messageWin = document.querySelector('[data-message-win]');
-    this.messageStart = document.querySelector('[data-message-start]');
+    this.messageLose = document.querySelector('.message-lose');
+    this.messageWin = document.querySelector('.message-win');
+    this.messageStart = document.querySelector('.message-start');
     this.notMoved = false;
+
+    this.disableLeft = false;
+    this.disableRight = false;
+    this.disableUp = false;
+    this.disableDown = false;
   }
 
   moveLeft() {
-    // console.log('left');
-    // this.spawnBlock();
+    if (this.disableLeft) {
+      return;
+    }
+
     this.makeMove('left');
   }
 
   moveRight() {
-    // console.log('right');
-    // this.spawnBlock();
+    if (this.disableRight) {
+      return;
+    }
+
     this.makeMove('right');
   }
 
   moveUp() {
-    // console.log('Up');
-    // this.spawnBlock();
+    if (this.disableUp) {
+      return;
+    }
+
     this.makeMove('up');
   }
 
   moveDown() {
-    // console.log('Down');
-    // this.spawnBlock();
+    if (this.disableDown) {
+      return;
+    }
+
     this.makeMove('down');
   }
 
@@ -103,11 +117,10 @@ class Game {
     this.messageStart.classList.add('hidden');
     this.status = 'playing';
 
-    // this.spawnCell();
-    // this.spawnCell();
+    this.spawnCell();
+    this.spawnCell();
 
     this.drowCells();
-    this.checkMoves();
   }
 
   /**
@@ -137,6 +150,8 @@ class Game {
       cell.className = 'field-cell';
     });
     this.emptyCells = this.cells;
+    this.score = 0;
+    this.scoreHTML.innerText = 0;
   }
 
   buttonClick() {
@@ -154,79 +169,115 @@ class Game {
     this.messageLose.classList.remove('hidden');
   }
 
+  gameWin() {
+    this.status = 'lose';
+    this.messageWin.classList.remove('hidden');
+
+    this.disableLeft = true;
+    this.disableRight = true;
+    this.disableUp = true;
+    this.disableDown = true;
+  }
+
   makeMove(direction) {
-    this.calculateStep(direction);
+    this.calculateStep(direction, this.state);
     this.spawnCell();
     this.drowCells();
     this.checkMoves();
   }
 
-  calculateStep(direction) {
+  calculateStep(direction, array) {
+    const oldArray = JSON.parse(JSON.stringify(array));
+
     switch (direction) {
       case 'left':
         for (let row = 0; row < 4; row++) {
           const rowArr = [];
 
           for (let col = 0; col < 4; col++) {
-            rowArr.push(this.state[row][col]);
+            rowArr.push(array[row][col]);
           }
 
-          const newArr = this.step(rowArr);
+          const newArr = this.step(rowArr, array);
 
           for (let col = 3; col >= 0; col--) {
-            this.state[row][col] = newArr[col];
+            array[row][col] = newArr[col];
           }
+          console.log(rowArr, 'old', newArr, 'new');
+
         }
+
+        if (array === this.state) {
+          console.log(array);
+        }
+
+        this.notMoved = this.compareArrays(oldArray, array);
         break;
       case 'right':
         for (let row = 0; row < 4; row++) {
           const rowArr = [];
 
           for (let col = 3; col >= 0; col--) {
-            rowArr.push(this.state[row][col]);
+            rowArr.push(array[row][col]);
           }
 
-          const newArr = this.step(rowArr).reverse();
+          const newArr = this.step(rowArr, array).reverse();
 
           for (let col = 3; col >= 0; col--) {
-            this.state[row][col] = newArr[col];
+            array[row][col] = newArr[col];
           }
+          console.log(rowArr, 'old', newArr, 'new');
+
         }
+
+        if (array === this.state) {
+          console.log(array);
+        }
+
+        this.notMoved = this.compareArrays(oldArray, array);
         break;
       case 'up':
         for (let col = 0; col < 4; col++) {
           const colArr = [];
 
           for (let row = 0; row < 4; row++) {
-            colArr.push(this.state[row][col]);
+            colArr.push(array[row][col]);
           }
 
-          const newArr = this.step(colArr);
+          const newArr = this.step(colArr, array);
 
           for (let row = 0; row < 4; row++) {
-            this.state[row][col] = newArr[row];
+            array[row][col] = newArr[row];
           }
         }
+
+        this.notMoved = this.compareArrays(oldArray, array);
         break;
       case 'down':
         for (let col = 0; col < 4; col++) {
           const colArr = [];
 
           for (let row = 3; row >= 0; row--) {
-            colArr.push(this.state[row][col]);
+            colArr.push(array[row][col]);
           }
 
-          const newArr = this.step(colArr).reverse();
+          const newArr = this.step(colArr, array).reverse();
 
           for (let row = 0; row < 4; row++) {
-            this.state[row][col] = newArr[row];
+            array[row][col] = newArr[row];
           }
         }
+
+        this.notMoved = this.compareArrays(oldArray, array);
         break;
     }
   }
 
-  step(arr) {
+  compareArrays(a, b) {
+    return a.toString() === b.toString();
+  }
+
+  step(arr, originArr) {
     const newArr = [...arr];
 
     for (let i = 0; i < newArr.length; i++) {
@@ -239,10 +290,18 @@ class Game {
         } else if (newArr[j] === newArr[i]) {
           newArr[i] *= 2;
           newArr[j] = 0;
-          this.getScore(newArr[i]);
-          this.notMoved = false;
+
+          if (originArr === this.state) {
+            this.getScore(newArr[i]);
+
+            if (newArr[i] === 2048) {
+              this.status = 'win';
+              this.gameWin();
+            }
+          }
+
           break;
-        } else if (newArr[j] > newArr[i]) {
+        } else if (newArr[j] > newArr[i] || newArr[j] < newArr[i]) {
           break;
         }
       }
@@ -283,23 +342,37 @@ class Game {
   }
 
   checkMoves() {
+    this.disableLeft = false;
+    this.disableRight = false;
+    this.disableUp = false;
+    this.disableDown = false;
+
     const imposibleToMove = {
       left: true,
       right: true,
       up: true,
       down: true,
-      all: this.left + this.right + this.up + this.down,
     };
 
     for (const direction in imposibleToMove) {
-      this.calculateStep(direction);
+      this.calculateStep(direction, JSON.parse(JSON.stringify(this.state)));
+
       imposibleToMove[direction] = this.notMoved;
+
+      if (imposibleToMove[direction]) {
+        // eslint-disable-next-line prettier/prettier, max-len
+        this['disable' + direction[0].toUpperCase() + direction.slice(1)] = true;
+      }
+
       this.notMoved = true;
     }
 
-    // console.log(imposibleToMove);
-
-    if (imposibleToMove.all) {
+    if (
+      imposibleToMove.left &&
+      imposibleToMove.right &&
+      imposibleToMove.up &&
+      imposibleToMove.down
+    ) {
       this.gameLose();
     }
   }
