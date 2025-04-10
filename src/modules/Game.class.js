@@ -157,12 +157,25 @@ class Game {
 
           const newArr = this.step(rowArr);
 
-          for (let col = 0; col < 4; col++) {
-            this.state[row][col] = newArr[row];
+          for (let col = 3; col >= 0; col--) {
+            this.state[row][col] = newArr[col];
           }
         }
         break;
       case 'right':
+        for (let row = 0; row < 4; row++) {
+          const rowArr = [];
+
+          for (let col = 3; col >= 0; col--) {
+            rowArr.push(this.state[row][col]);
+          }
+
+          const newArr = this.step(rowArr).reverse();
+
+          for (let col = 3; col >= 0; col--) {
+            this.state[row][col] = newArr[col];
+          }
+        }
         break;
       case 'up':
         for (let col = 0; col < 4; col++) {
@@ -196,14 +209,12 @@ class Game {
         break;
     }
 
-    console.log(this.state);
     this.spawnCell();
+    this.drowCells();
   }
 
   step(arr) {
     const newArr = [...arr];
-
-    console.log(newArr, 'old');
 
     for (let i = 0; i < newArr.length; i++) {
       for (let j = i + 1; j < newArr.length; j++) {
@@ -221,8 +232,6 @@ class Game {
         }
       }
     }
-
-    console.log(newArr, 'new');
 
     return newArr;
   }
@@ -244,31 +253,14 @@ class Game {
     const randEmptyCell = emptyCells[randCellIndex];
 
     this.state[randEmptyCell[1]][randEmptyCell[0]] = cellValue;
-
-    console.log(this.state, 'spawn');
   }
 
-  //   spawnBlock() {
-  //     // const blockValue = Math.random() * 100 > 10 ? 2 : 4;
-  //     // this.state[randBlock.parentElement.rowIndex][randBlock.cellIndex]
-  //     // = blockValue;
-  //     // const randBlock = this.emptyCells[randBlockIndex];
-  //     // randBlock.innerText = blockValue;
-  //     // randBlock.classList.add('field-cell--' + blockValue);
-  //     // this.emptyCells = this.emptyCells.filter(
-  // (cell) => cell !== randBlock);
-  //     // // eslint-disable-next-line max-len, prettier/prettier
-  //     // console.log(this.state);
-  //     // if (this.emptyCells.length === 0) {
-  //     //   this.gameLose();
-  //     // }
-  //   }
-
-  //   // moveUpCheck() {
-  //   //   for (let i = 0; i < 4; i++) {
-
-  //   //   }
-  //   // }
+  drowCells() {
+    this.cells.forEach((cell, i) => {
+      cell.innerText = this.state.flat()[i];
+      cell.className = 'field-cell' + ' field-cell--' + cell.innerText;
+    });
+  }
 }
 
 module.exports = Game;
