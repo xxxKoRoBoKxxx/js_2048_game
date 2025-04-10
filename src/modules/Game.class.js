@@ -33,30 +33,31 @@ class Game {
     this.messageLose = document.querySelector('[data-message-lose]');
     this.messageWin = document.querySelector('[data-message-win]');
     this.messageStart = document.querySelector('[data-message-start]');
+    this.notMoved = false;
   }
 
   moveLeft() {
     // console.log('left');
     // this.spawnBlock();
-    this.calculateStep('left');
+    this.makeMove('left');
   }
 
   moveRight() {
     // console.log('right');
     // this.spawnBlock();
-    this.calculateStep('right');
+    this.makeMove('right');
   }
 
   moveUp() {
     // console.log('Up');
     // this.spawnBlock();
-    this.calculateStep('up');
+    this.makeMove('up');
   }
 
   moveDown() {
     // console.log('Down');
     // this.spawnBlock();
-    this.calculateStep('down');
+    this.makeMove('down');
   }
 
   /**
@@ -101,7 +102,12 @@ class Game {
 
     this.messageStart.classList.add('hidden');
     this.status = 'playing';
+
+    // this.spawnCell();
+    // this.spawnCell();
+
     this.drowCells();
+    this.checkMoves();
   }
 
   /**
@@ -146,6 +152,13 @@ class Game {
   gameLose() {
     this.status = 'lose';
     this.messageLose.classList.remove('hidden');
+  }
+
+  makeMove(direction) {
+    this.calculateStep(direction);
+    this.spawnCell();
+    this.drowCells();
+    this.checkMoves();
   }
 
   calculateStep(direction) {
@@ -211,9 +224,6 @@ class Game {
         }
         break;
     }
-
-    this.spawnCell();
-    this.drowCells();
   }
 
   step(arr) {
@@ -230,6 +240,7 @@ class Game {
           newArr[i] *= 2;
           newArr[j] = 0;
           this.getScore(newArr[i]);
+          this.notMoved = false;
           break;
         } else if (newArr[j] > newArr[i]) {
           break;
@@ -269,6 +280,28 @@ class Game {
         cell.className = 'field-cell' + ' field-cell--' + cell.innerText;
       }
     });
+  }
+
+  checkMoves() {
+    const imposibleToMove = {
+      left: true,
+      right: true,
+      up: true,
+      down: true,
+      all: this.left + this.right + this.up + this.down,
+    };
+
+    for (const direction in imposibleToMove) {
+      this.calculateStep(direction);
+      imposibleToMove[direction] = this.notMoved;
+      this.notMoved = true;
+    }
+
+    // console.log(imposibleToMove);
+
+    if (imposibleToMove.all) {
+      this.gameLose();
+    }
   }
 }
 
