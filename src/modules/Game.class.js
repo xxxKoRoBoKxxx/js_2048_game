@@ -36,6 +36,16 @@ class Game {
     this.messageStart = document.querySelector('.message-start');
     this.notMoved = false;
 
+    this.touchStartObj = {
+      x: 0,
+      y: 0,
+    };
+
+    this.touchEndObj = {
+      x: 0,
+      y: 0,
+    };
+
     this.disableLeft = false;
     this.disableRight = false;
     this.disableUp = false;
@@ -363,6 +373,49 @@ class Game {
       imposibleToMove.down
     ) {
       this.gameLose();
+    }
+  }
+
+  touchStart(event) {
+    if (this.status !== 'playing') {
+      return;
+    }
+
+    this.touchStartObj = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY,
+    };
+  }
+
+  touchEnd(event) {
+    if (this.status !== 'playing') {
+      return;
+    }
+
+    this.touchEndObj = {
+      x: event.changedTouches[0].clientX,
+      y: event.changedTouches[0].clientY,
+    };
+
+    this.calculateSwipe();
+  }
+
+  calculateSwipe() {
+    const x = this.touchStartObj.x - this.touchEndObj.x;
+    const y = this.touchStartObj.y - this.touchEndObj.y;
+
+    if (Math.abs(x) > Math.abs(y) && Math.abs(x) > 100) {
+      if (x > 0) {
+        this.moveLeft();
+      } else {
+        this.moveRight();
+      }
+    } else if (Math.abs(x) < Math.abs(y) && Math.abs(y) > 100) {
+      if (y > 0) {
+        this.moveUp();
+      } else {
+        this.moveDown();
+      }
     }
   }
 }

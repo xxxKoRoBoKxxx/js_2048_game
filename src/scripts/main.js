@@ -33,3 +33,11 @@ document.addEventListener('keydown', (event) => {
     }
   }
 });
+
+document.addEventListener('touchstart', (event) => {
+  game.touchStart(event);
+});
+
+document.addEventListener('touchend', (event) => {
+  game.touchEnd(event);
+});
