@@ -203,12 +203,6 @@ class Game {
           for (let col = 3; col >= 0; col--) {
             array[row][col] = newArr[col];
           }
-          console.log(rowArr, 'old', newArr, 'new');
-
-        }
-
-        if (array === this.state) {
-          console.log(array);
         }
 
         this.notMoved = this.compareArrays(oldArray, array);
@@ -226,12 +220,6 @@ class Game {
           for (let col = 3; col >= 0; col--) {
             array[row][col] = newArr[col];
           }
-          console.log(rowArr, 'old', newArr, 'new');
-
-        }
-
-        if (array === this.state) {
-          console.log(array);
         }
 
         this.notMoved = this.compareArrays(oldArray, array);
@@ -331,11 +319,11 @@ class Game {
 
   drowCells() {
     this.cells.forEach((cell, i) => {
-      cell.innerText = this.state.flat()[i];
-
-      if (cell.innerText === '0') {
+      if (this.state.flat()[i] === 0) {
         cell.className = 'field-cell';
+        cell.innerText = '';
       } else {
+        cell.innerText = this.state.flat()[i];
         cell.className = 'field-cell' + ' field-cell--' + cell.innerText;
       }
     });
@@ -361,7 +349,8 @@ class Game {
 
       if (imposibleToMove[direction]) {
         // eslint-disable-next-line prettier/prettier, max-len
-        this['disable' + direction[0].toUpperCase() + direction.slice(1)] = true;
+        this['disable' + direction[0].toUpperCase() + direction.slice(1)] =
+          true;
       }
 
       this.notMoved = true;
